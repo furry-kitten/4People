@@ -1,0 +1,115 @@
+﻿<Window x:Class="_4People.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:_4People"
+        mc:Ignorable="d"
+        xmlns:viewModels="clr-namespace:_4People.ViewModels"
+        xmlns:model="clr-namespace:_4People.Models"
+        xmlns:control="clr-namespace:_4People.View.Controls"
+        xmlns:dbModel="clr-namespace:_4People.Database.Models"
+        d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel, IsDesignTimeCreatable=True}"
+        Title="MainWindow" Height="450" Width="800">
+    <DockPanel>
+        <DockPanel
+            LastChildFill="True"
+            DockPanel.Dock="Top">
+            <Button
+                DockPanel.Dock="Left"
+                Name="ShowReports"
+                Content="Show reports"
+                IsEnabled="{Binding IsDatabaseLoading, Converter={StaticResource InvertBool}}"
+                Click="ShowReports_OnClick"/>
+            <ProgressBar
+                DockPanel.Dock="Right"
+                IsIndeterminate="True"
+                Visibility="{Binding IsDatabaseLoading, Converter={StaticResource BoolToVisibility}}" />
+        </DockPanel>
+        <DockPanel
+            DockPanel.Dock="Left"
+            LastChildFill="True"
+            IsEnabled="{Binding IsDatabaseLoading, Converter={StaticResource InvertBool}}">
+        <Button
+            Name="AddCompanyBtn"
+            Content="Add company"
+            DockPanel.Dock="Bottom"
+            Click="AddCompanyBtn_OnClick"/>
+        <TreeView
+            Width="300"
+            BorderThickness="0"
+            ItemsSource="{Binding Companies}"
+            SelectedItemChanged="TreeView_OnSelectedItemChanged">
+            <TreeView.ItemTemplate>
+                <HierarchicalDataTemplate DataType="{x:Type viewModels:CompanyViewModel}" ItemsSource="{Binding Subdivisions}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding Name}"/>
+                            <Button Name="AddSubdivisionBtn"  Content="Add" Margin="5 0 0 0" Click="AddSubdivisionBtn_OnClick"/>
+                    </StackPanel>
+                    <HierarchicalDataTemplate.ItemTemplate>
+                        <HierarchicalDataTemplate DataType="{x:Type viewModels:SubdivisionViewModel}" ItemsSource="{Binding Employees}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Name}"/>
+                                <Button Name="AddEmployeesBtn"  Content="Add" Margin="5 0 0 0" Click="AddEmployeesBtn_OnClick"/>
+                            </StackPanel>
+                            <HierarchicalDataTemplate.ItemTemplate>
+                                <HierarchicalDataTemplate DataType="{x:Type viewModels:EmployeeViewModel}">
+                                    <TextBlock>
+                                        <Run Text="{Binding Surname, StringFormat={}{0} }"/>
+                                        <Run Text="{Binding Name, StringFormat={}{0} }"/>
+                                        <Run Text="{Binding Patronymic, StringFormat={}{0} }"/>
+                                    </TextBlock>
+                                </HierarchicalDataTemplate>
+                            </HierarchicalDataTemplate.ItemTemplate>
+                        </HierarchicalDataTemplate>
+                    </HierarchicalDataTemplate.ItemTemplate>
+                </HierarchicalDataTemplate>
+            </TreeView.ItemTemplate>
+        </TreeView>
+    </DockPanel>
+        <StackPanel
+            DockPanel.Dock="Bottom"
+            MaxHeight="30"
+            Orientation="Horizontal"
+            HorizontalAlignment="Center"
+            IsEnabled="{Binding IsDatabaseLoading, Converter={StaticResource InvertBool}}"
+            Visibility="{Binding IsButtonsVisible, Converter={StaticResource BoolToVisibility}}">
+            <Button
+                Name="Save"
+                Content="Save"
+                Margin="0 0 5 0"
+            IsEnabled="{Binding SelectedItem.IsChanged}"
+                Click="Save_OnClick"/>
+            <Button
+                Name="Remove"
+                Content="Remove"
+            IsEnabled="{Binding SelectedItem.IsChanged, Converter={StaticResource InvertBool}}"
+                Click="Remove_OnClick"/>
+        </StackPanel>
+        <DockPanel>
+            <Border
+                DockPanel.Dock="Top"
+                Visibility="{Binding IsCompanySelected, Converter={StaticResource BoolToVisibility}}">
+                <control:CompanyControl
+                    DockPanel.Dock="Right"
+                    DataContext="{Binding SelectedItem}"/>
+            </Border>
+            <Border
+                DockPanel.Dock="Top"
+                IsEnabled="{Binding IsDatabaseLoading, Converter={StaticResource InvertBool}}"
+                Visibility="{Binding IsSubdivisionSelected, Converter={StaticResource BoolToVisibility}}">
+                <control:SubdivisionControl
+                    DockPanel.Dock="Right"
+                    DataContext="{Binding SelectedItem}"/>
+            </Border>
+            <Border
+                DockPanel.Dock="Top"
+                IsEnabled="{Binding IsDatabaseLoading, Converter={StaticResource InvertBool}}"
+                Visibility="{Binding IsEmployeeSelected, Converter={StaticResource BoolToVisibility}}">
+                <control:EmployeeControl
+                    DockPanel.Dock="Right"
+                    DataContext="{Binding SelectedItem}"/>
+            </Border>
+        </DockPanel>
+    </DockPanel>
+</Window>

@@ -1,0 +1,10 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:enum="clr-namespace:_4People.Enums">
+    <ObjectDataProvider x:Key="FilterTypeEnum" MethodName="GetValues"
+                        ObjectType="{x:Type enum:FilterType}">
+        <ObjectDataProvider.MethodParameters>
+            <x:Type TypeName="enum:FilterType"/>
+        </ObjectDataProvider.MethodParameters>
+    </ObjectDataProvider>
+</ResourceDictionary>
