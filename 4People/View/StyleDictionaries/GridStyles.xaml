@@ -10,7 +10,7 @@
         <Setter Property="BorderBrush" Value="LightGray" />
     </Style>
 
-    <Style TargetType="RowDefinition">
+    <Style TargetType="RowDefinition" x:Key="InputRow">
         <Setter Property="Height" Value="25"></Setter>
     </Style>
 </ResourceDictionary>

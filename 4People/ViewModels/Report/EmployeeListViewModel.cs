@@ -45,11 +45,13 @@ namespace _4People.ViewModels.Report
         private void InitSubscribes()
         {
             this.WhenAnyValue(model => model.SelectedFilter)
-                .Subscribe(filterValue => Task.Run(async () => await GetEmployees(filterValue)));
+                .Throttle(TimeSpan.FromSeconds(1))
+                .Subscribe(async filterValue => await GetEmployees(filterValue));
 
             this.WhenAnyValue(model => model.SelectedFilterType)
+                .Throttle(TimeSpan.FromSeconds(1))
                 .Where(type => type is FilterType.None)
-                .Subscribe(_ => Task.Run(async () => await GetEmployees()));
+                .Subscribe(async _ => await GetEmployees());
         }
 
         private async Task GetEmployees(int? filterValue = null)

@@ -9,36 +9,47 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <ScrollViewer
         VerticalScrollBarVisibility="Auto">
-        <DockPanel LastChildFill="True" Margin="5 0 0 0">
+        <DockPanel
+            LastChildFill="True">
+            <ProgressBar
+                DockPanel.Dock="Right"
+                VerticalAlignment="Top"
+                Width="125"
+                Height="12"
+                Margin="5"
+                IsIndeterminate="True"
+                Visibility="{Binding IsSearching, Converter={StaticResource BoolToVisibility}}"/>
+            <DockPanel LastChildFill="True" Margin="5 0 0 0">
                 <Border DockPanel.Dock="Top" HorizontalAlignment="Left">
                     <StackPanel>
                         <TextBlock
-                            Text="Payroll sheet"
-                            Style="{StaticResource HeaderTextBlock}" />
+                                Text="Payroll sheet"
+                                Style="{StaticResource HeaderTextBlock}" />
                         <DataGrid ItemsSource="{Binding FullSheet}" IsReadOnly="True" />
                     </StackPanel>
                 </Border>
-            <WrapPanel
-                Margin="0 5"
-                Orientation="Horizontal"
-                HorizontalAlignment="Left">
-                <Border Margin="5 0">
-                    <StackPanel>
-                        <TextBlock
-                            Text="Subdivision totals"
-                            Style="{StaticResource HeaderTextBlock}"/>
-                        <DataGrid DockPanel.Dock="Bottom" ItemsSource="{Binding SubdivisionsTotals}" />
-                    </StackPanel>
-                </Border>
-                <Border Margin="5 0">
-                    <StackPanel>
-                        <TextBlock 
-                            Text="Companies totals"
-                            Style="{StaticResource HeaderTextBlock}"/>
-                        <DataGrid DockPanel.Dock="Bottom" ItemsSource="{Binding CompaniesTotals}" />
-                    </StackPanel>
-                </Border>
-            </WrapPanel>
+                <WrapPanel
+                    Margin="0 5"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Left">
+                    <Border Margin="5 0">
+                        <StackPanel>
+                            <TextBlock
+                                Text="Subdivision totals"
+                                Style="{StaticResource HeaderTextBlock}"/>
+                            <DataGrid DockPanel.Dock="Bottom" ItemsSource="{Binding SubdivisionsTotals}" />
+                        </StackPanel>
+                    </Border>
+                    <Border Margin="5 0">
+                        <StackPanel>
+                            <TextBlock 
+                                Text="Companies totals"
+                                Style="{StaticResource HeaderTextBlock}"/>
+                            <DataGrid DockPanel.Dock="Bottom" ItemsSource="{Binding CompaniesTotals}" />
+                        </StackPanel>
+                    </Border>
+                </WrapPanel>
+            </DockPanel>
         </DockPanel>
     </ScrollViewer>
 </UserControl>

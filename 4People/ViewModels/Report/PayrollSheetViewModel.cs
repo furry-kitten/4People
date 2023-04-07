@@ -22,6 +22,7 @@ namespace _4People.ViewModels.Report
         public PayrollSheetViewModel()
         {
             InitSubscribes();
+            IsSearching = true;
             Task.Run(UpdateData);
         }
 
@@ -29,6 +30,7 @@ namespace _4People.ViewModels.Report
         [Reactive] public ObservableCollection<PayrollSheetRow> FullSheet { get; set; } = new();
         [Reactive] public ObservableCollection<TotalsRow> SubdivisionsTotals { get; set; } = new();
         [Reactive] public ObservableCollection<TotalsRow> CompaniesTotals { get; set; } = new();
+        [Reactive] public bool IsSearching { get; set; } = new();
 
         public async Task<List<PayrollSheet>> GetPayrollSheet()
         {
@@ -51,6 +53,7 @@ namespace _4People.ViewModels.Report
 
         public async Task UpdateData()
         {
+            Application.Current.Dispatcher.Invoke(() => IsSearching = true);
             var payrollSheets = await GetPayrollSheet();
             payrollSheets.ForEach(sheet =>
             {
@@ -88,6 +91,7 @@ namespace _4People.ViewModels.Report
 
         private void ResetSheets()
         {
+            Application.Current.Dispatcher.Invoke(() => IsSearching = true);
             var items = Sheet.SelectMany(sheet => sheet.Employees)
                              .Select(employee => new PayrollSheetRow
                              {
@@ -117,6 +121,8 @@ namespace _4People.ViewModels.Report
                     Name = sheet.Company.Name,
                     Total = sheet.Total
                 }));
+
+                IsSearching = false;
             });
         }
     }
