@@ -45,7 +45,6 @@ namespace _4People.Services
             {
                 await DbLocker.WaitHandleAsync(async () =>
                 {
-                    //company.Id = Guid.NewGuid();
                     company = await AddEntityAsync(company);
                     await Context.SaveChangesAsync();
                     Context.DetachAllEntries(company.Subdivisions);
@@ -66,6 +65,8 @@ namespace _4People.Services
         {
             var collection = Entity.Include(company => company.Subdivisions)
                                    .ThenInclude(subdivision => subdivision.Employees)
+                                   .Include(company => company.Subdivisions)
+                                   .ThenInclude(subdivision => subdivision.Leader)
                                    .AsNoTracking();
 
             if (predicate != null)

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,7 +7,6 @@ using _4People.Database;
 using _4People.Database.Models;
 using _4People.Extensions;
 using Microsoft.EntityFrameworkCore;
-using ReactiveUI.Fody.Helpers;
 
 namespace _4People.Services
 {
@@ -17,16 +15,13 @@ namespace _4People.Services
     {
         protected static readonly SemaphoreSlim DbLocker = new(1);
         protected EfContext Context;
-        protected DbSet<TEntity>? Entity;
+        protected DbSet<TEntity> Entity;
 
         protected BaseDbWorker(EfContext context)
         {
             Context = context;
             Entity = context.Set<TEntity>();
         }
-
-        [Reactive]
-        internal static bool IsInit { get; set; } = false;
 
         public static async Task<EfContext?> InitAsync()
         {
@@ -37,9 +32,6 @@ namespace _4People.Services
             return context!;
         }
 
-        public IEnumerable<TEntity> Get(Expression<Func<TEntity, bool>>? predicate = null) =>
-            predicate != null ? Entity.Where(predicate).AsNoTracking() : Entity.AsNoTracking();
-
         public abstract IEnumerable<TEntity> GetFull(Expression<Func<TEntity, bool>>? predicate);
 
         public async Task RemoveEntity(TEntity entity)
@@ -47,16 +39,17 @@ namespace _4People.Services
             await DbLocker.WaitHandleAsync(async () =>
             {
                 Entity.Remove(entity);
-                var saveChangesAsync = await Context.SaveChangesAsync();
+                await Context.SaveChangesAsync();
             });
         }
 
         protected async Task UpdateEntityAsync(TEntity entity)
         {
             Context.Attach(entity);
-            Context.Entry(entity).State = EntityState.Modified;
+            var entityEntry = Context.Entry(entity);
+            entityEntry.State = EntityState.Modified;
             Context.Update(entity);
-            var saveChangesAsync = await Context.SaveChangesAsync();
+            await Context.SaveChangesAsync();
             Context.Detach(entity);
         }
 

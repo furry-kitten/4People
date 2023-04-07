@@ -22,9 +22,9 @@ namespace _4People.Services
                 await DbLocker.WaitHandleAsync(async () =>
                 {
                     await UpdateEntityAsync(subdivision);
-                    await Context.SaveChangesAsync();
                     Context.DetachAllEntries(subdivision.Employees);
                     Context.Detach(subdivision.Leader);
+                    Context.Detach(subdivision.Company);
                 });
 
                 return true;
@@ -43,9 +43,10 @@ namespace _4People.Services
                 await DbLocker.WaitHandleAsync(async () =>
                 {
                     subdivision = await AddEntityAsync(subdivision);
-                    var saveChangesAsync = await Context.SaveChangesAsync();
+                    await Context.SaveChangesAsync();
                     Context.DetachAllEntries(subdivision.Employees);
                     Context.Detach(subdivision.Leader);
+                    Context.Detach(subdivision.Company);
                 });
 
                 return true;

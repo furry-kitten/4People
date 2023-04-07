@@ -3,100 +3,87 @@
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-    xmlns:local="clr-namespace:_4People.View.Controls"
-    xmlns:viewModels="clr-namespace:_4People.ViewModels"
-    xmlns:models="clr-namespace:_4People.Models"
-    xmlns:dbModels="clr-namespace:_4People.Database.Models"
+    xmlns:main="clr-namespace:_4People.ViewModels.Main"
     mc:Ignorable="d" 
-    d:DataContext="{d:DesignInstance Type=viewModels:EmployeeViewModel, IsDesignTimeCreatable=True}">
+    d:DataContext="{d:DesignInstance Type=main:EmployeeViewModel, IsDesignTimeCreatable=True}">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="5" />
+            <ColumnDefinition MinWidth="200" Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition  Height="25"/>
-            <RowDefinition  Height="25"/>
-            <RowDefinition  Height="25"/>
-            <RowDefinition  Height="25"/>
-            <RowDefinition  Height="25"/>
-            <RowDefinition  Height="25"/>
-            <RowDefinition  Height="25"/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
         </Grid.RowDefinitions>
         <TextBlock
             Text="Surname"
-            Margin="0 0 5 0"
             Grid.Row="0"
             Grid.Column="0"/>
         <TextBox
             Text="{Binding Surname}"
-            MinWidth="200"
             Grid.Row="0"
-            Grid.Column="1"/>
+            Grid.Column="2"/>
 
         <TextBlock
             Text="Name"
-            Margin="0 0 5 0"
             Grid.Row="1"
             Grid.Column="0"/>
         <TextBox
             Text="{Binding Name}"
-            MinWidth="200"
             Grid.Row="1"
-            Grid.Column="1"/>
+            Grid.Column="2"/>
 
         <TextBlock
             Text="Patronymic"
-            Margin="0 0 5 0"
             Grid.Row="2"
             Grid.Column="0"/>
         <TextBox
             Text="{Binding Patronymic}"
-            MinWidth="200"
             Grid.Row="2"
-            Grid.Column="1"/>
+            Grid.Column="2"/>
 
         <TextBlock
             Text="BirthDate" Margin="0 0 5 0"
             Grid.Row="3" 
             Grid.Column="0"/>
         <DatePicker
+            IsTodayHighlighted="True"
             SelectedDate="{Binding BirthDate}"
-            MinWidth="200"
             Grid.Row="3"
-            Grid.Column="1"/>
+            Grid.Column="2"/>
 
         <TextBlock
             Text="EmploymentDate"
-            Margin="0 0 5 0"
             Grid.Row="4"
             Grid.Column="0"/>
         <DatePicker
+            IsTodayHighlighted="True"
             SelectedDate="{Binding EmploymentDate}"
-            MinWidth="200"
             Grid.Row="4" 
-            Grid.Column="1"/>
+            Grid.Column="2"/>
 
         <TextBlock
             Text="Rank"
-            Margin="0 0 5 0"
             Grid.Row="5"
             Grid.Column="0"/>
         <TextBox
             Text="{Binding Rank}"
-            MinWidth="200"
             Grid.Row="5"
-            Grid.Column="1"/>
+            Grid.Column="2"/>
 
         <TextBlock
             Text="Salary"
-            Margin="0 0 5 0"
             Grid.Row="6"
             Grid.Column="0"/>
         <TextBox
             Text="{Binding Salary}"
-            MinWidth="200"
             Grid.Row="6"
-            Grid.Column="1"/>
+            Grid.Column="2"/>
     </Grid>
 </UserControl>

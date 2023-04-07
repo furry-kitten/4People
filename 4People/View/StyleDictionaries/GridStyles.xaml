@@ -9,4 +9,8 @@
         <Setter Property="BorderThickness" Value="1 1 1 0" />
         <Setter Property="BorderBrush" Value="LightGray" />
     </Style>
+
+    <Style TargetType="RowDefinition">
+        <Setter Property="Height" Value="25"></Setter>
+    </Style>
 </ResourceDictionary>

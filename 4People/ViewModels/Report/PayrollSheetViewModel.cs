@@ -13,7 +13,7 @@ using DynamicData.Binding;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
-namespace _4People.ViewModels
+namespace _4People.ViewModels.Report
 {
     public class PayrollSheetViewModel : ReactiveObject
     {
@@ -21,10 +21,7 @@ namespace _4People.ViewModels
 
         public PayrollSheetViewModel()
         {
-            Sheet.ObserveCollectionChanges()
-                 .Throttle(TimeSpan.FromSeconds(1))
-                 .Subscribe(p => ResetSheets());
-
+            InitSubscribes();
             Task.Run(UpdateData);
         }
 
@@ -82,26 +79,27 @@ namespace _4People.ViewModels
                           .ToList() ??
                    new List<Employee>();
         }
+        private void InitSubscribes()
+        {
+            Sheet.ObserveCollectionChanges()
+                 .Throttle(TimeSpan.FromSeconds(1))
+                 .Subscribe(_ => ResetSheets());
+        }
 
         private void ResetSheets()
         {
             var items = Sheet.SelectMany(sheet => sheet.Employees)
                              .Select(employee => new PayrollSheetRow
                              {
-                                 Company = employee.Subdivision.Company.Name,
-                                 EmployeeFullName = $"{employee.Surname} {employee.Name} {employee.Patronymic}",
+                                 Company = employee.Subdivision!.Company!.Name,
+                                 EmployeeFullName =
+                                     $"{employee.Surname} {employee.Name} {employee.Patronymic}",
                                  SubdivisionName = employee.Subdivision.Name,
                                  Salary = employee.Salary
                              });
 
-            Application.Current.Dispatcher.InvokeAsync(() =>
-            {
-                FullSheet.Clear();
-                FullSheet.Add(items);
-            });
-
             var subdivisionsResults = Sheet.SelectMany(sheet => sheet.SubdivisionsResults)
-                                           .Select(pair => new TotalsRow()
+                                           .Select(pair => new TotalsRow
                                            {
                                                Name = pair.Key.Name,
                                                Total = pair.Value
@@ -109,17 +107,15 @@ namespace _4People.ViewModels
 
             Application.Current.Dispatcher.InvokeAsync(() =>
             {
+                FullSheet.Clear();
+                FullSheet.Add(items);
                 SubdivisionsTotals.Clear();
                 SubdivisionsTotals.Add(subdivisionsResults);
-            });
-
-            Application.Current.Dispatcher.InvokeAsync(() =>
-            {
                 CompaniesTotals.Clear();
-                CompaniesTotals.Add(Sheet.Select(sheet => new TotalsRow()
+                CompaniesTotals.Add(Sheet.Select(sheet => new TotalsRow
                 {
                     Name = sheet.Company.Name,
-                    Total = sheet.Total,
+                    Total = sheet.Total
                 }));
             });
         }

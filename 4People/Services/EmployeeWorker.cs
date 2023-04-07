@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
 using _4People.Database;
 using _4People.Database.Models;
 using _4People.Extensions;
@@ -21,7 +19,12 @@ namespace _4People.Services
         {
             try
             {
-                await DbLocker.WaitHandleAsync(async () => await UpdateEntityAsync(employee));
+                await DbLocker.WaitHandleAsync(async () =>
+                {
+                    await UpdateEntityAsync(employee);
+                    Context.Detach(employee.Subdivision);
+                });
+
                 return true;
             }
             catch (Exception e)
@@ -39,6 +42,7 @@ namespace _4People.Services
                 {
                     employee = await AddEntityAsync(employee);
                     await Context.SaveChangesAsync();
+                    Context.Detach(employee.Subdivision);
                 });
 
                 return true;
@@ -50,8 +54,7 @@ namespace _4People.Services
             }
         }
 
-        public override IEnumerable<Employee> GetFull(
-            Expression<Func<Employee, bool>>? predicate)
+        public override IEnumerable<Employee> GetFull(Expression<Func<Employee, bool>>? predicate)
         {
             var collection = Entity.Include(employee => employee.Subdivision)
                                    .ThenInclude(subdivision => subdivision.Company)

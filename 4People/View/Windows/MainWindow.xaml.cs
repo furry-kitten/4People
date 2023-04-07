@@ -1,10 +1,10 @@
 ﻿using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using _4People.View.Windows;
-using _4People.ViewModels;
+using _4People.ViewModels.Main;
+using _4People.ViewModels.Report;
 
-namespace _4People
+namespace _4People.View.Windows
 {
     /// <summary>
     ///     Interaction logic for MainWindow.xaml
@@ -16,6 +16,7 @@ namespace _4People
         public MainWindow()
         {
             InitializeComponent();
+            _model = new MainViewModel();
         }
 
         public MainWindow(MainViewModel model)

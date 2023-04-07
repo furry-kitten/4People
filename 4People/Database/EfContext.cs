@@ -1,29 +1,14 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Data.Common;
-using System.Diagnostics;
-using System.IO;
-using System.Reflection;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using _4People.Database.Models;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace _4People.Database
 {
     public class EfContext : DbContext
     {
-        public static readonly string CreatingString = @"Server=DESKTOP-491MMIU\SQLDEV1101;Database=_4People;User ID=sa;Password=Tok_Vol583;TrustServerCertificate=True;Trusted_Connection=True;";
-        public static bool IsAlreadyExists;
-        private static SqliteConnection sqlConnection = new ();
-
-        public DbSet<Company> Companies { get; set; }
-        public DbSet<Subdivision> Subdivisions { get; set; }
-        public DbSet<Employee> Employees { get; set; }
-
-        public EfContext() : base()
+        public EfContext()
         {
+
             Database.Migrate();
             Database.EnsureCreated();
         }
@@ -33,18 +18,20 @@ namespace _4People.Database
             Database.Migrate();
             Database.EnsureCreated();
         }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlServer(CreatingString);
-        }
+        public DbSet<Company> Companies { get; set; }
+        public DbSet<Subdivision> Subdivisions { get; set; }
+        public DbSet<Employee> Employees { get; set; }
 
         public static async Task<EfContext> CreateInstanceAsync()
         {
-            DbContextOptionsBuilder<EfContext> builder = new();
-            builder.UseSqlServer(CreatingString);
-            var context = new EfContext(builder.Options);
+            EfContextFactory factory = new();
+            var context = factory.CreateDbContext();
             return context;
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlServer(Constants.CreatingString);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -56,7 +43,7 @@ namespace _4People.Database
 
             modelBuilder.Entity<Subdivision>()
                         .HasOne(subdivision => subdivision.Leader)
-                        .WithOne()
+                        .WithOne(employee => employee.SubordinateUnit)
                         .HasForeignKey<Subdivision>(subdivision => subdivision.LeaderId);
 
             modelBuilder.Entity<Subdivision>()

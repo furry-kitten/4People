@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using _4People.Database.Models;
-using _4People.Models;
 
 namespace _4People.Services
 {
@@ -13,9 +9,9 @@ namespace _4People.Services
 
         public static StorageFacade Instance { get; } = new();
 
-        public CompanyWorker CompanyWorker { get; private set; }
-        public SubdivisionWorker SubdivisionWorker { get; private set; }
-        public EmployeeWorker EmployeeWorker { get; private set; }
+        public CompanyWorker CompanyWorker { get; private set; } = null!;
+        public SubdivisionWorker SubdivisionWorker { get; private set; } = null!;
+        public EmployeeWorker EmployeeWorker { get; private set; } = null!;
         public bool IsInited { get; set; }
 
         public async Task Init()

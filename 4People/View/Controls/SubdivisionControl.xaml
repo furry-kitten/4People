@@ -3,39 +3,55 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:_4People.View.Controls"
-             xmlns:viewModels="clr-namespace:_4People.ViewModels"
-             xmlns:models="clr-namespace:_4People.Models"
-             xmlns:dbModels="clr-namespace:_4People.Database.Models"
+             xmlns:main="clr-namespace:_4People.ViewModels.Main"
              mc:Ignorable="d" 
-             d:DataContext="{d:DesignInstance Type=viewModels:SubdivisionViewModel, IsDesignTimeCreatable=True}">
+             d:DataContext="{d:DesignInstance Type=main:SubdivisionViewModel, IsDesignTimeCreatable=True}">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="5" />
+            <ColumnDefinition MinWidth="200" Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition  Height="25"/>
-            <RowDefinition  Height="25"/>
+            <RowDefinition/>
+            <RowDefinition/>
         </Grid.RowDefinitions>
         <TextBlock
             Text="Name"
-            Margin="0 0 5 0"
             Grid.Row="0"
             Grid.Column="0"/>
         <TextBox
             Text="{Binding Name}"
             Grid.Row="0"
-            Grid.Column="1"/>
+            Grid.Column="2"/>
 
         <TextBlock 
             Text="Leader"
-            Margin="0 0 5 0"
             Grid.Row="1"
             Grid.Column="0"/>
-        <TextBox
-            Text="{Binding Leader}"
+        <DockPanel
             Grid.Row="1"
-            Grid.Column="1"/>
+            Grid.Column="2"
+            LastChildFill="True">
+            <Button
+                DockPanel.Dock="Right"
+                Content="Remove"
+                Visibility="{Binding Leader, Converter={StaticResource NotNullToVisibility}}"
+                Click="ButtonBase_OnClick"/>
+            <ComboBox
+                IsSynchronizedWithCurrentItem="True"
+                ItemsSource="{Binding Employees}"
+                SelectedItem="{Binding Leader}">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock>
+                            <Run Text="{Binding Surname}"/>
+                            <Run Text="{Binding Name}"/>
+                            <Run Text="{Binding Patronymic}"/>
+                        </TextBlock>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+        </DockPanel>
     </Grid>
 </UserControl>

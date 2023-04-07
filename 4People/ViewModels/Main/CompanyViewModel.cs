@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -13,7 +12,7 @@ using DynamicData.Binding;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
-namespace _4People.ViewModels
+namespace _4People.ViewModels.Main
 {
     public class CompanyViewModel : BaseDbModelViewModel
     {
@@ -55,7 +54,7 @@ namespace _4People.ViewModels
 
         public ObservableCollection<SubdivisionViewModel> Subdivisions { get; set; } = new();
 
-        public override Unit Save()
+        public override void Save()
         {
             PrepareToSave();
             if (Company.Id == default)
@@ -67,12 +66,13 @@ namespace _4People.ViewModels
                 Task.Run(Update).ConfigureAwait(false);
             }
 
-            foreach (var employee in Subdivisions.Where(model => model.IsChanged).SelectMany(model => model.Employees.Where(employee => employee.IsChanged)))
+            foreach (var employee in Subdivisions.Where(model => model.IsChanged)
+                                                 .SelectMany(model =>
+                                                     model.Employees.Where(employee =>
+                                                         employee.IsChanged)))
             {
                 employee.IsChanged = false;
             }
-
-            return Unit.Default;
         }
 
         public override void PrepareToSave()
@@ -87,12 +87,17 @@ namespace _4People.ViewModels
 
             Company.Subdivisions = Company.Id == default ?
                 Subdivisions.Select(model => model.Subdivision).ToList() :
-                Subdivisions.Where(model => model.IsChanged).Select(model => model.Subdivision).ToList();
+                Subdivisions.Where(model => model.IsChanged)
+                            .Select(model => model.Subdivision)
+                            .ToList();
         }
 
         public override void Remove()
         {
-            Task.Run(async () => await Facade.CompanyWorker.RemoveEntity(new Company() {Id = Company.Id}));
+            Task.Run(async () => await Facade.CompanyWorker.RemoveEntity(new Company
+            {
+                Id = Company.Id
+            }));
         }
 
         public void AddSubdivision()
@@ -102,34 +107,32 @@ namespace _4People.ViewModels
                 CompanyId = Company.Id
             };
 
-            var item = new SubdivisionViewModel(subdivision)
-            {
-                IsChanged = true
-            };
-
+            var item = new SubdivisionViewModel(subdivision);
             Subdivisions.Add(item);
+            SubscribeOnSubdivisionChanges(item);
+            item.IsChanged = true;
         }
 
         private async Task Update()
         {
             var result = await Facade.CompanyWorker.UpdateAsync(Company);
-            Sync(result);
+            Sync(!result);
         }
 
         private async Task Add()
         {
             var result = await StorageFacade.Instance.CompanyWorker.AddAsync(Company);
-            Sync(result);
+            Sync(!result);
         }
 
         private void Sync(bool result)
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
-                IsChanged = !result;
+                IsChanged = result;
                 foreach (var changedModel in Subdivisions.Where(model => model.IsChanged))
                 {
-                    changedModel.IsChanged = !result;
+                    changedModel.IsChanged = result;
                 }
             });
         }
@@ -140,20 +143,7 @@ namespace _4People.ViewModels
                 .WhereNotNull()
                 .Subscribe(model => model.PrepareToSave());
 
-            foreach (var subdivision in Subdivisions)
-            {
-                subdivision.WhenAnyValue(model => model.IsChanged)
-                           .Skip(1)
-                           .Subscribe(result =>
-                           {
-                               IsChanged = result;
-                               if (result)
-                               {
-                                   PrepareToSave();
-                               }
-                           });
-            }
-
+            SubscribeOnSubdivisionChanges(Subdivisions);
             Subdivisions.ObserveCollectionChanges()
                         .Skip(1)
                         .Subscribe(_ =>
@@ -164,21 +154,29 @@ namespace _4People.ViewModels
                                             .Select(model => model.Subdivision)
                                             .ToList();
 
-                            foreach (var model in Subdivisions.Where(model => model.IsChanged))
-                            {
-                                model.WhenAnyValue(viewModel => viewModel.IsChanged)
-                                     .Subscribe(result =>
-                                     {
-                                         IsChanged = result;
-                                         if (result)
-                                         {
-                                             PrepareToSave();
-                                         }
-                                     });
-                            }
-
                             IsChanged = true;
                         });
+        }
+
+        private void SubscribeOnSubdivisionChanges(IEnumerable<SubdivisionViewModel> subdivisions)
+        {
+            foreach (var subdivision in subdivisions)
+            {
+                SubscribeOnSubdivisionChanges(subdivision);
+            }
+        }
+
+        private void SubscribeOnSubdivisionChanges(SubdivisionViewModel subdivision)
+        {
+            subdivision.WhenAnyValue(model => model.IsChanged)
+                       .Subscribe(result =>
+                       {
+                           IsChanged = result;
+                           if (result)
+                           {
+                               PrepareToSave();
+                           }
+                       });
         }
     }
 }

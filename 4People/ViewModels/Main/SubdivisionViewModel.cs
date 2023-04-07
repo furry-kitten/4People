@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
@@ -11,15 +12,16 @@ using DynamicData.Binding;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
-namespace _4People.ViewModels
+namespace _4People.ViewModels.Main
 {
     public class SubdivisionViewModel : BaseDbModelViewModel
     {
         public SubdivisionViewModel()
         {
             Name = "11111111111111111";
-            Leader = "2212121121212";
             Subdivision = new Subdivision();
+            Leader = new EmployeeViewModel();
+            Employees.Add(Leader);
 
             InitSubscribes();
         }
@@ -28,7 +30,10 @@ namespace _4People.ViewModels
         {
             Subdivision = subdivision;
             Name = subdivision.Name;
-            Leader = subdivision.Leader?.Name ?? string.Empty;
+            Leader = subdivision.Leader is not null ?
+                new EmployeeViewModel(subdivision.Leader) :
+                null;
+
             if (subdivision.Employees?.Any() == true)
             {
                 Employees.Add(
@@ -40,11 +45,11 @@ namespace _4People.ViewModels
 
         [Reactive] public Subdivision Subdivision { get; set; }
         [Reactive] public string Name { get; set; }
-        [Reactive] public string Leader { get; set; }
+        [Reactive] public EmployeeViewModel? Leader { get; set; }
 
         public ObservableCollection<EmployeeViewModel> Employees { get; set; } = new();
 
-        public override Unit Save()
+        public override void Save()
         {
             PrepareToSave();
             if (Subdivision.Id == default)
@@ -55,14 +60,13 @@ namespace _4People.ViewModels
             {
                 Task.Run(Update).ConfigureAwait(false);
             }
-
-            return Unit.Default;
         }
 
         public override void PrepareToSave()
         {
             Subdivision.Name = Name;
-            Subdivision.LeaderId = Subdivision.LeaderId;
+            Subdivision.LeaderId = Leader?.Employee.Id;
+            Subdivision.Leader = Leader?.Employee;
             IsChanged = true;
             foreach (var model in Employees)
             {
@@ -79,7 +83,10 @@ namespace _4People.ViewModels
         public override void Remove()
         {
             Subdivision.Company = null;
-            Task.Run(async () => await Facade.SubdivisionWorker.RemoveEntity(new Subdivision(){Id = Subdivision.Id}))
+            Task.Run(async () => await Facade.SubdivisionWorker.RemoveEntity(new Subdivision
+                {
+                    Id = Subdivision.Id
+                }))
                 .ConfigureAwait(false);
         }
 
@@ -95,14 +102,17 @@ namespace _4People.ViewModels
                 Surname = string.Empty
             };
 
-            var item = new EmployeeViewModel(employee)
-            {
-                IsChanged = true
-            };
-
+            var item = new EmployeeViewModel(employee);
             Employees.Add(item);
-
+            SubscribeOnEmployeeChanges(item);
             IsChanged = true;
+        }
+
+        public void RemoveLeader()
+        {
+            Leader = null;
+            PrepareToSave();
+            Save();
         }
 
         private async Task Update()
@@ -135,19 +145,7 @@ namespace _4People.ViewModels
                 .WhereNotNull()
                 .Subscribe(model => model.PrepareToSave());
 
-            foreach (var employee in Employees)
-            {
-                employee.WhenAnyValue(model => model.IsChanged)
-                        .Subscribe(result =>
-                        {
-                            IsChanged = result;
-                            if (result)
-                            {
-                                PrepareToSave();
-                            }
-                        });
-            }
-
+            SubscribeOnEmployeeChanges(Employees);
             Employees.ObserveCollectionChanges()
                      .Skip(1)
                      .Subscribe(_ =>
@@ -158,21 +156,29 @@ namespace _4People.ViewModels
                                       .Select(model => model.Employee)
                                       .ToList();
 
-                         foreach (var model in Employees.Where(model => model.IsChanged))
-                         {
-                             model.WhenAnyValue(viewModel => viewModel.IsChanged)
-                                  .Subscribe(result =>
-                                  {
-                                      IsChanged = result;
-                                      if (result)
-                                      {
-                                          PrepareToSave();
-                                      }
-                                  });
-                         }
-
                          IsChanged = true;
                      });
+        }
+
+        private void SubscribeOnEmployeeChanges(IEnumerable<EmployeeViewModel> employees)
+        {
+            foreach (var employee in employees)
+            {
+                SubscribeOnEmployeeChanges(employee);
+            }
+        }
+
+        private void SubscribeOnEmployeeChanges(EmployeeViewModel employee)
+        {
+            employee.WhenAnyValue(model => model.IsChanged)
+                    .Subscribe(result =>
+                    {
+                        IsChanged = result;
+                        if (result)
+                        {
+                            PrepareToSave();
+                        }
+                    });
         }
     }
 }

@@ -23,7 +23,7 @@ namespace _4People.Extensions
             await slimLocker.WaitAsync();
             try
             {
-                action();
+                await action();
             }
             finally
             {

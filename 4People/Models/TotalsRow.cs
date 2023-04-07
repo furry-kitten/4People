@@ -2,7 +2,7 @@
 {
     public class TotalsRow
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public decimal Total { get; set; }
     }
 }

@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Windows.Data;
 using _4People.Database.Models;
-using _4People.ViewModels;
+using _4People.ViewModels.Main;
 
 namespace _4People.Converters
 {

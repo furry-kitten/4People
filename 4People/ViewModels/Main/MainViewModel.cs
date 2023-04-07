@@ -10,7 +10,7 @@ using DynamicData;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
-namespace _4People.ViewModels
+namespace _4People.ViewModels.Main
 {
     public class MainViewModel : ReactiveObject
     {
@@ -22,6 +22,7 @@ namespace _4People.ViewModels
         }
 
         public ObservableCollection<CompanyViewModel> Companies { get; set; } = new();
+
         [Reactive] public BaseDbModelViewModel? SelectedItem { get; set; }
         [Reactive] public bool IsDatabaseLoading { get; set; }
         [Reactive] public bool IsCompanySelected { get; set; }
@@ -32,7 +33,7 @@ namespace _4People.ViewModels
         public async Task FillFields()
         {
             var companies = _storageFacade.CompanyWorker.GetFull(null).ToList();
-            Application.Current.Dispatcher.InvokeAsync(() =>
+            await Application.Current.Dispatcher.InvokeAsync(() =>
             {
                 Companies.Add(companies.Select(company => new CompanyViewModel(company)));
             });
@@ -54,18 +55,11 @@ namespace _4People.ViewModels
             SelectedItem = Companies.Last();
         }
 
-        public void Save()
-        {
-            foreach (var model in Companies.Where(model => model.IsChanged))
-            {
-                model.Save();
-                model.IsChanged = false;
-            }
-        }
+        public void Save() => SelectedItem!.Save();
 
         public void Remove()
         {
-            SelectedItem.Remove();
+            SelectedItem!.Remove();
             if (IsCompanySelected)
             {
                 Companies.Remove((SelectedItem as CompanyViewModel)!);
@@ -85,6 +79,8 @@ namespace _4People.ViewModels
                                  employeeModel.Employee.Id == selectedItem.Employee.Id)))
                          .First(model => model != null)!.Employees.Remove(selectedItem);
             }
+
+            Save();
         }
 
         private void OnSelectedItemChanged(BaseDbModelViewModel? obj)

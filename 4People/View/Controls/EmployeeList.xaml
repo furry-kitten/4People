@@ -3,41 +3,67 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:_4People.View.Controls"
-             xmlns:enum="clr-namespace:_4People.Enums"
-             xmlns:viewModel="clr-namespace:_4People.ViewModels"
+             xmlns:report="clr-namespace:_4People.ViewModels.Report"
              mc:Ignorable="d" 
-             d:DataContext="{d:DesignInstance Type=viewModel:EmployeeListViewModel, IsDesignTimeCreatable=True}"
+             d:DataContext="{d:DesignInstance Type=report:EmployeeListViewModel, IsDesignTimeCreatable=True}"
              d:DesignHeight="450" d:DesignWidth="800">
     <DockPanel LastChildFill="True">
-        <StackPanel 
-                DockPanel.Dock="Top"
-                VerticalAlignment="Top"
-                Orientation="Horizontal">
-            <ComboBox
+        <DockPanel 
+            LastChildFill="True"
+            DockPanel.Dock="Top">
+            <TextBlock
+                DockPanel.Dock="Left"
+                Text="Filter by"
+                VerticalAlignment="Center"
+                Margin="0 0 5 0"/>
+            <ComboBox       
+                DockPanel.Dock="Left"
                 Name="FilterType"
                 Width="100"
+                MaxDropDownHeight="100"
+                IsSynchronizedWithCurrentItem="True"
                 ItemsSource="{Binding Source={StaticResource FilterTypeEnum}}"
                 SelectedItem="{Binding SelectedFilterType}"/>
+            <TextBlock
+                DockPanel.Dock="Left"
+                Name="FilterValueCaption"
+                Text="Filter value"
+                Margin="5 0"
+                VerticalAlignment="Center"
+                Visibility="{Binding ElementName=Filter, Path=Visibility}"/>
             <ComboBox
+                DockPanel.Dock="Left"
                 Name="Filter"
                 Width="100"
                 MaxDropDownHeight="100"
+                IsSynchronizedWithCurrentItem="True"
                 SelectedItem="{Binding SelectedFilter}">
                 <ComboBox.Style>
                     <Style TargetType="ComboBox">
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding SelectedFilterType}" Value="ByAge">
-                                <Setter Property="ItemsSource" Value="{Binding AgeFilter}"></Setter>
+                                <Setter Property="ItemsSource" Value="{Binding AgeFilter}" />
+                                <Setter Property="Visibility" Value="Visible" />
                             </DataTrigger>
                             <DataTrigger Binding="{Binding SelectedFilterType}" Value="ByBirthYear">
-                                <Setter Property="ItemsSource" Value="{Binding YearFilter}"></Setter>
+                                <Setter Property="ItemsSource" Value="{Binding YearFilter}" />
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding SelectedFilterType}" Value="None">
+                                <Setter Property="ItemsSource" Value="{x:Null}" />
+                                <Setter Property="Visibility" Value="Collapsed" />
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </ComboBox.Style>
             </ComboBox>
-        </StackPanel>
+            <ProgressBar
+                HorizontalAlignment="Right"
+                Width="125"
+                Margin="5"
+                IsIndeterminate="True"
+                Visibility="{Binding IsSearching, Converter={StaticResource BoolToVisibility}}"/>
+        </DockPanel>
         <DataGrid ItemsSource="{Binding Employees}" Style="{StaticResource {x:Type DataGrid}}" />
     </DockPanel>
 </UserControl>

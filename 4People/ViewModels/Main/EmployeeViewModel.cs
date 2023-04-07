@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net;
 using System.Reactive;
 using System.Threading.Tasks;
 using System.Windows;
@@ -9,7 +8,7 @@ using DynamicData.Binding;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
-namespace _4People.ViewModels
+namespace _4People.ViewModels.Main
 {
     public class EmployeeViewModel : BaseDbModelViewModel
     {
@@ -50,7 +49,7 @@ namespace _4People.ViewModels
         [Reactive] public string Rank { get; set; }
         [Reactive] public decimal Salary { get; set; }
 
-        public override Unit Save()
+        public override void Save()
         {
             PrepareToSave();
             if (Employee.Id == default)
@@ -61,8 +60,6 @@ namespace _4People.ViewModels
             {
                 Task.Run(Update).ConfigureAwait(false);
             }
-
-            return Unit.Default;
         }
 
         public override void PrepareToSave()
@@ -80,7 +77,12 @@ namespace _4People.ViewModels
 
         public override void Remove()
         {
-            Task.Run(async () => await Facade.EmployeeWorker.RemoveEntity(new Employee() {Id = Employee.Id}));
+            var employee = new Employee
+            {
+                Id = Employee.Id
+            };
+
+            Task.Run(async () => await Facade.EmployeeWorker.RemoveEntity(employee));
         }
 
         private async Task Update()
@@ -105,7 +107,8 @@ namespace _4People.ViewModels
 
         private void InitSubscribes()
         {
-            this.WhenAnyPropertyChanged(nameof(Name), nameof(Surname), nameof(Patronymic), nameof(BirthDate), nameof(EmploymentDate), nameof(Rank), nameof(Salary))
+            this.WhenAnyPropertyChanged(nameof(Name), nameof(Surname), nameof(Patronymic),
+                    nameof(BirthDate), nameof(EmploymentDate), nameof(Rank), nameof(Salary))
                 .WhereNotNull()
                 .Subscribe(model => model.PrepareToSave());
         }

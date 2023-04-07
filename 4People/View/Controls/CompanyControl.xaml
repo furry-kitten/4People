@@ -3,62 +3,52 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:_4People.View.Controls"
-             xmlns:viewModels="clr-namespace:_4People.ViewModels"
-             xmlns:models="clr-namespace:_4People.Models"
-             xmlns:dbModels="clr-namespace:_4People.Database.Models"
+             xmlns:main="clr-namespace:_4People.ViewModels.Main"
              mc:Ignorable="d" 
-             d:DataContext="{d:DesignInstance Type=viewModels:CompanyViewModel, IsDesignTimeCreatable=True}">
+             d:DataContext="{d:DesignInstance Type=main:CompanyViewModel, IsDesignTimeCreatable=True}">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="5" />
+            <ColumnDefinition MinWidth="200" Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition  Height="25"/>
-            <RowDefinition  Height="25"/>
-            <RowDefinition  Height="25"/>
-            <RowDefinition  Height="25"/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
         </Grid.RowDefinitions>
         <TextBlock
             Text="Company name"
-            Margin="0 0 5 0"
             Grid.Row="0"
             Grid.Column="0"/>
         <TextBox
             Text="{Binding Name}"
-            MinWidth="200"
             Grid.Row="0"
-            Grid.Column="1"/>
+            Grid.Column="2"/>
         <TextBlock
             Text="Created"
-            Margin="0 0 5 0"
             Grid.Row="1"
             Grid.Column="0"/>
         <TextBox
             Text="{Binding CreationDate}"
-            MinWidth="200"
             Grid.Row="1"
-            Grid.Column="1"/>
+            Grid.Column="2"/>
         <TextBlock
             Text="Address"
-            Margin="0 0 5 0"
             Grid.Row="2"
             Grid.Column="0"/>
         <TextBox
             Text="{Binding Address}"
-            MinWidth="200"
             Grid.Row="2"
-            Grid.Column="1"/>
+            Grid.Column="2"/>
         <TextBlock
             Text="Subdivisions count"
-            Margin="0 0 5 0"
             Grid.Row="3"
             Grid.Column="0"/>
         <TextBlock
             Text="{Binding Company.Subdivisions.Count}"
-            Margin="0 0 5 0"
             Grid.Row="3"
-            Grid.Column="1"/>
+            Grid.Column="2"/>
     </Grid>
 </UserControl>

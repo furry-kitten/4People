@@ -10,6 +10,7 @@
             <converter:DbModelToViewModelsConverter x:Key="DbModelToViewModels"/>
             <converter:InvertBoolConverter x:Key="InvertBool"/>
             <converter:DateTimeFormatConverter x:Key="DateTimeFormat"/>
+            <converter:NotNullToVisibilityConverter x:Key="NotNullToVisibility"/>
 
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/View/StyleDictionaries/GridStyles.xaml" />

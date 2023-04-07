@@ -13,7 +13,7 @@ using DynamicData;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
-namespace _4People.ViewModels
+namespace _4People.ViewModels.Report
 {
     public class EmployeeListViewModel : ReactiveObject
     {
@@ -23,15 +23,8 @@ namespace _4People.ViewModels
 
         public EmployeeListViewModel()
         {
-            this.WhenAnyValue(model => model.SelectedFilter)
-                .Subscribe(async filterValue => await GetEmployees(filterValue));
-
-            this.WhenAnyValue(model => model.SelectedFilterType)
-                .Where(type => type is FilterType.None)
-                .Subscribe(async _ => await GetEmployees());
-            
+            InitSubscribes();
             GetFilterData();
-            GetEmployees().ConfigureAwait(false);
         }
 
         public ObservableCollection<int> YearFilter { get; set; } = new();
@@ -40,6 +33,7 @@ namespace _4People.ViewModels
 
         [Reactive] public int? SelectedFilter { get; set; }
         [Reactive] public FilterType SelectedFilterType { get; set; }
+        [Reactive] public bool IsSearching { get; set; }
 
         public Expression<Func<Employee, bool>>? GetFilter(int? filterValue) =>
             filterValue is not null ?
@@ -48,20 +42,37 @@ namespace _4People.ViewModels
                     employee => employee.BirthDate.Year == filterValue :
                 null;
 
+        private void InitSubscribes()
+        {
+            this.WhenAnyValue(model => model.SelectedFilter)
+                .Subscribe(filterValue => Task.Run(async () => await GetEmployees(filterValue)));
+
+            this.WhenAnyValue(model => model.SelectedFilterType)
+                .Where(type => type is FilterType.None)
+                .Subscribe(_ => Task.Run(async () => await GetEmployees()));
+        }
+
         private async Task GetEmployees(int? filterValue = null)
         {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                IsSearching = true;
+            });
+
             var employees = _facade.EmployeeWorker.GetFull(GetFilter(filterValue));
-            Application.Current.Dispatcher.InvokeAsync(() =>
+            await Application.Current.Dispatcher.InvokeAsync(() =>
             {
                 Employees.Clear();
                 Employees.Add(employees.Select(employee => new EmployeeInfo
                 {
-                    SubdivisionName = employee.Subdivision.Name,
-                    CompanyName = employee.Subdivision.Company.Name,
+                    SubdivisionName = employee.Subdivision!.Name,
+                    CompanyName = employee.Subdivision.Company!.Name,
                     FulName = $"{employee.Surname} {employee.Name} {employee.Patronymic}",
                     Age = DateTime.Today.Year - employee.BirthDate.Year,
                     YearsInCompany = DateTime.Today.Year - employee.EmploymentDate.Year
                 }));
+
+                IsSearching = false;
             });
         }
 

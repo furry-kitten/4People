@@ -13,6 +13,7 @@ namespace _4People.Database.Models
         public decimal Salary { get; set; }
         public Guid SubdivisionId { get; set; }
 
-        public Subdivision? Subdivision { get; set; } = null!;
+        public Subdivision? Subdivision { get; set; }
+        public Subdivision? SubordinateUnit { get; set; }
     }
 }
